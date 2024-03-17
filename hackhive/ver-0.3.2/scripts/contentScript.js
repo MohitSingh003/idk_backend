@@ -1,4 +1,33 @@
 // Check if the current page is a Google Meet page
+const { MongoClient } = require("mongodb")
+
+const uri = "mongodb+srv://arnavkadoo:iamarnav@cluster0.99nd64h.mongodb.net/summarizers"
+const client = new MongoClient(uri);
+async function run() {
+    try {
+        await client.connect();
+        // database and collection code goes here
+        const db = client.db("summarizers");
+        const coll = db.collection("summaries");
+
+        // insert code goes here
+        const docs = [
+            { name: "Mohit", transcript: "Yelo.... paani peelo" },
+        ];
+
+        const result = await coll.insertMany(docs);
+
+        // display the results of your operation
+        console.log(result.insertedIds);
+
+    } finally {
+        // Ensures that the client will close when you finish/error
+        await client.close();
+    }
+}
+run().catch(console.dir);
+
+
 let transcript = [];
 if (location.href.includes("meet.google.com")) {
     let transcriptTime = [],
@@ -56,7 +85,7 @@ if (location.href.includes("meet.google.com")) {
             combinedTranscript.push(transcript[i]);
             combinedTranscript.push("\n");
         }
-        let blob = new Blob([combinedTranscript.join("")], {type: "text/csv"});
+        let blob = new Blob([combinedTranscript.join("")], { type: "text/csv" });
         let link = document.createElement("a");
         link.download = "transcript_" + Date.now().toString() + ".csv";
         link.href = window.URL.createObjectURL(blob);
@@ -69,11 +98,13 @@ if (location.href.includes("meet.google.com")) {
 }
 
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.action === "exportTranscript") {
         saveTranscript();
     }
 });
+
+
 
 
 
